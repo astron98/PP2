@@ -7,25 +7,50 @@ using namespace std;
 class Points{
 public:
     float x,y,z;
-    Points(float x_1, float y_1, float z_1){
+    Points(){}
+    Points(float x, float y, float z){
 
-        x=x_1;
-        y=y_1;
-        z=z_1;
+        this->x=x;
+        this->y=y;
+        this->z=z;
 
     }
 };
 
-class Trajectory::Points{
+class Trajectory{
 public:
     vector<Points> points;
     int numberOfPoints;
-    Trajectory(vector<Points> &points_input){
+    Points currentPoint;
+    Points nextPoint;
 
-        points = points_input;
-        numberOfPoints = points.size();
+    int cpi = 0;
+
+    Trajectory(){}
+    Trajectory(vector<Points> &points){
+
+        this->points = points;
+        this->numberOfPoints = this->points.size();
 
     }
+
+    vector<float> findLine(Points a_point, Points b_point) {
+        float a = (b_point.y - a_point.y)*(b_point.z-a_point.z);
+        float b = (a_point.x - b_point.x)*(b_point.z-a_point.z);
+        float c=  (a_point.x- b_point.x)*(b_point.y-a_point.y);
+        float d = a*a_point.x + b*a_point.y+c*a_point.z;
+        float da= -d/a;
+        float db= -d/b;
+        float dc= -d/c;
+
+        vector<float> direction;
+        direction.push_back(da);
+        direction.push_back(db);
+        direction.push_back(dc);
+        return a1;
+
+    }
+
 };
 
 

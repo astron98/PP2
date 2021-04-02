@@ -42,10 +42,7 @@
 			<Add directory="$(#freeglut.lib)" />
 		</Linker>
 		<Unit filename="main.cpp" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Unit filename="trajectory.h" />
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

@@ -1,46 +1,64 @@
-//create a square animation.
-
 #include<GL/glut.h>
 #include<GL/glu.h>
 #include<GL/gl.h>
 #include<bits/stdc++.h>
-//#include "trajectory.h"
+#include "trajectory.h"
+
+#define PI 3.1415926535898
+#define Cos(th) cos(PI/180*(th))
+#define Sin(th) sin(PI/180*(th))
+/*  D degrees of rotation */
+#define DEF_D 5
 
 using namespace std;
 
-class Points{
-public:
-    float x,y,z;
-    Points(float x_1, float y_1, float z_1){
 
-        x=x_1;
-        y=y_1;
-        z=z_1;
+//trajectory class
+Trajectory trajectory;
 
-    }
-};
-
-class Trajectory{
-public:
-    vector<Points> points;
-    int numberOfPoints;
-    Trajectory(vector<Points> &points_input){
-
-        points = points_input;
-        numberOfPoints = points.size();
-
-    }
-};
+//initial position of x
+float x_position = 0.0, y_position = 0.0, z_position = -15.0;
+int x_direction = 1, y_direction = 1, z_direction = 1;
+float angle = 90.0, angle_x = 1.0, angle_y = 1.0, angle_z = 0.0;
+int N = 0;
 
 void display();
 void reshape(int, int);
 void timer(int);
 
+void updateDirections(){
+    x_direction = (trajectory.points[trajectory.cpi].x < trajectory.points[trajectory.cpi+1].x)?1:-1;
+}
+
+void takeUserInput(){
+
+    int n=0;
+    cout<<"Enter the number of points: ";
+    cin>>n;
+
+    vector<Points> points;
+
+    Points point;
+    for(int i=0;i<n;i++){
+        cout<<"Enter x, y, z for point "<<(i+1)<<endl;
+        cin>>point.x>>point.y>>point.z;
+        points.push_back(point);
+    }
+
+	trajectory.points = points;
+	trajectory.points.push_back(points[0]);
+	N = points.size();
+}
+
 void init(){
     glClearColor(0.7,0.7,0.7,1.0);
     glEnable(GL_DEPTH_TEST);
 }
+
 int main(int argc, char** argv) {
+
+    takeUserInput();
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(200,100);
@@ -57,12 +75,6 @@ int main(int argc, char** argv) {
     glutMainLoop();
 }
 
-//initial position of x
-float x_position = 0.0, y_position = 0.0, z_position = -15.0;
-float angle = 0.0;
-int state = 1;
-
-
 void display() {
 
     //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -78,52 +90,23 @@ void display() {
 
     // x,y=x- Equation. We can use 3d parabola equation to implement path
     glTranslatef(x_position,y_position,z_position);
-    glRotatef(angle,0.0,0.0,1.0);
+    glRotatef(angle,angle_x,angle_y,angle_z);
 
     glShadeModel(GL_SMOOTH);
 
     //glPointSize(1.0);
     //draw the primistive/ load the model
-    glBegin(GL_QUADS);
+    glBegin(GL_TRIANGLES);
 
     //Colors are assigned to vertices
-    glColor3f(1.0,0.0,0.0);
-
-    glColor3f(1.0,0.0,0.0);
-    glVertex3f(-1.0,1.0,1.0);
-    glVertex3f(-1.0,-1.0,1.0);
-    glVertex3f(1.0,-1.0,1.0);
-    glVertex3f(1.0,1.0,1.0);
-    //back
-    glColor3f(0.0,1.0,0.0);
-    glVertex3f(1.0,1.0,-1.0);
-    glVertex3f(1.0,-1.0,-1.0);
-    glVertex3f(-1.0,-1.0,-1.0);
-    glVertex3f(-1.0,1.0,-1.0);
-    //right
-    glColor3f(0.0,0.0,1.0);
-    glVertex3f(1.0,1.0,1.0);
-    glVertex3f(1.0,-1.0,1.0);
-    glVertex3f(1.0,-1.0,-1.0);
-    glVertex3f(1.0,1.0,-1.0);
-    //left
-    glColor3f(1.0,1.0,0.0);
-    glVertex3f(-1.0,1.0,-1.0);
-    glVertex3f(-1.0,-1.0,-1.0);
-    glVertex3f(-1.0,-1.0,1.0);
-    glVertex3f(-1.0,1.0,1.0);
-    //top
-    glColor3f(0.0,1.0,1.0);
-    glVertex3f(-1.0,1.0,-1.0);
-    glVertex3f(-1.0,1.0,1.0);
-    glVertex3f(1.0,1.0,1.0);
-    glVertex3f(1.0,1.0,-1.0);
-    //bottom
-    glColor3f(1.0,0.0,1.0);
-    glVertex3f(-1.0,-1.0,-1.0);
-    glVertex3f(-1.0,-1.0,1.0);
-    glVertex3f(1.0,-1.0,1.0);
-    glVertex3f(1.0,-1.0,-1.0);
+    for (int k=0;k<=360;k+=DEF_D){
+      glColor3f(0.0,0.0,1.0);
+      glVertex3f(0,0,1);
+      glColor3f(0.0,1.0,0.0);
+      glVertex3f(Cos(k),Sin(k),0);
+      glColor3f(1.0,0.0,0.0);
+      glVertex3f(Cos(k+DEF_D),Sin(k+DEF_D),0);
+    }
 
     glEnd();
     //will display the framebuffer on screen
@@ -153,39 +136,22 @@ void timer(int) {
     glutTimerFunc(1000/60, timer, 0);
 
     // Updating the angle
-    angle += 0.8;
-    if(angle > 360.0){
-        angle -=  360.0;
-    }
 
+    // Movement
 
-    // Updating trajectory co-ordinates
-    switch(state) {
-    case 1:
-        if(x_position<5){
-            x_position+=0.015;
-            //y_position = x_position;
-            }
-        else
-            state=-1;
-        break;
-    case -1:
-        if(x_position>-5){
-            x_position-=0.015;
-            //y_position = x_position;
-            }
-        else
-            state=1;
-        break;
-    }
+    // Logic
+    /*
+        1. Find the distance L :GLOBAL (distance)
+        2. Speed is constant   :GLOBAL (speed)
+        3. t = L/Speed         :GLOBAL (time)
+        4. M = t/(1/60)        :GLOBAL (Number of frames)
+        5. S = (L/M)           :GLOBAL ()
 
+        d = trajectory.findLine(trajectory.points[trajectory.cpi], trajectory.points[trajectory.cpi+1])
+        6. x_position = trajectory.points[trajectory.cpi].x + (d[0]*i*S)
+    */
 }
 
-/*
-2D projection:
-- always the center will be the orgin
-
-*/
 
 
 
