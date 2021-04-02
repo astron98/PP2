@@ -8,70 +8,138 @@ void display();
 void reshape(int, int);
 void timer(int);
 
+void init(){
+    glClearColor(0.7,0.7,0.7,1.0);
+    glEnable(GL_DEPTH_TEST);
+}
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(200,100);
     glutInitWindowSize(500,500);
 
-    glutCreateWindow("Window 1");
+    glutCreateWindow("Flight");
 
-//    callback functions
+    //callback functions
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutTimerFunc(0, timer, 0);
-
+    init();
 
     glutMainLoop();
 }
 
-float x_position = -10; //initial position of x
-int state = 1;  //if state = 1, move right, else move left.
+//initial position of x
+float x_position = 0.0;
+float angle = 0.0;
+int state = 1;
+
 
 void display() {
-//    glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
-    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
-    glLoadIdentity();   //will reset the coordinate system.
 
-//    glPointSize(1.0);
-    //draw
-    glBegin(GL_POLYGON);
+    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    //Set background color to black and opaque
+    // Clear the color buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //the coordinates should always be in anticlock wise.
-//    topleft, bottomleft, bottomright, topright
-    glVertex2f(x_position, 1.0);
-    glVertex2f(x_position, -1.0);
-    glVertex2f(x_position+2.0, -1);
-    glVertex2f(x_position+2.0,1);
+    //will reset the coordinate system.
+    glLoadIdentity();
+
+    //Translation is the shifting of the origin.
+    //Translate first and then draw the object
+
+    // x,y=x*3 - Equation. We can use 3d parabola equation to implement path
+    glTranslatef(x_position,x_position,-8.0);
+    glRotatef(angle,1.0,1.0,1.0);
+
+    glShadeModel(GL_SMOOTH);
+
+    //glPointSize(1.0);
+    //draw the primistive/ load the model
+    glBegin(GL_QUADS);
+
+    //Colors are assigned to vertices
+    glColor3f(1.0,0.0,0.0);
+
+    glColor3f(1.0,0.0,0.0);
+    glVertex3f(-1.0,1.0,1.0);
+    glVertex3f(-1.0,-1.0,1.0);
+    glVertex3f(1.0,-1.0,1.0);
+    glVertex3f(1.0,1.0,1.0);
+    //back
+    glColor3f(0.0,1.0,0.0);
+    glVertex3f(1.0,1.0,-1.0);
+    glVertex3f(1.0,-1.0,-1.0);
+    glVertex3f(-1.0,-1.0,-1.0);
+    glVertex3f(-1.0,1.0,-1.0);
+    //right
+    glColor3f(0.0,0.0,1.0);
+    glVertex3f(1.0,1.0,1.0);
+    glVertex3f(1.0,-1.0,1.0);
+    glVertex3f(1.0,-1.0,-1.0);
+    glVertex3f(1.0,1.0,-1.0);
+    //left
+    glColor3f(1.0,1.0,0.0);
+    glVertex3f(-1.0,1.0,-1.0);
+    glVertex3f(-1.0,-1.0,-1.0);
+    glVertex3f(-1.0,-1.0,1.0);
+    glVertex3f(-1.0,1.0,1.0);
+    //top
+    glColor3f(0.0,1.0,1.0);
+    glVertex3f(-1.0,1.0,-1.0);
+    glVertex3f(-1.0,1.0,1.0);
+    glVertex3f(1.0,1.0,1.0);
+    glVertex3f(1.0,1.0,-1.0);
+    //bottom
+    glColor3f(1.0,0.0,1.0);
+    glVertex3f(-1.0,-1.0,-1.0);
+    glVertex3f(-1.0,-1.0,1.0);
+    glVertex3f(1.0,-1.0,1.0);
+    glVertex3f(1.0,-1.0,-1.0);
+
     glEnd();
-
-    glutSwapBuffers();  //will display the framebuffer on screen
+    //will display the framebuffer on screen
+    glutSwapBuffers();
 }
 
 void reshape(int w, int h) {
     //v port
     glViewport( 0, 0, (GLsizei)w, (GLsizei)h);
+
     //projection
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(-10,10,-10,10);  //projection window
+
+    //projection window
+    gluPerspective(60,1,2.0,50.0);
+
     glMatrixMode(GL_MODELVIEW);
 }
 
 void timer(int) {
-    glutPostRedisplay();    //even the display() function is called 60 times in a second(1000 millisec)
-    glutTimerFunc(1000/60, timer, 0); //1000/60 is the frame rate
+
+    //even the display() function is called 60 times in a second(1000 millisec)
+    glutPostRedisplay();
+
+    //1000/60 is the frame rate
+    glutTimerFunc(1000/60, timer, 0);
+
+    angle += 0.8;
+    if(angle > 360.0){
+        angle -=  360.0;
+    }
+
 
     switch(state) {
     case 1:
-        if(x_position<8)
-            x_position+=0.15;
+        if(x_position<5)
+            x_position+=0.015;
         else
             state=-1;
         break;
     case -1:
-        if(x_position>-10)
-            x_position-=0.15;
+        if(x_position>-5)
+            x_position-=0.015;
         else
             state=1;
         break;
