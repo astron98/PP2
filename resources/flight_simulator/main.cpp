@@ -3,6 +3,34 @@
 #include<GL/glut.h>
 #include<GL/glu.h>
 #include<GL/gl.h>
+#include<bits/stdc++.h>
+//#include "trajectory.h"
+
+using namespace std;
+
+class Points{
+public:
+    float x,y,z;
+    Points(float x_1, float y_1, float z_1){
+
+        x=x_1;
+        y=y_1;
+        z=z_1;
+
+    }
+};
+
+class Trajectory{
+public:
+    vector<Points> points;
+    int numberOfPoints;
+    Trajectory(vector<Points> &points_input){
+
+        points = points_input;
+        numberOfPoints = points.size();
+
+    }
+};
 
 void display();
 void reshape(int, int);
@@ -30,7 +58,7 @@ int main(int argc, char** argv) {
 }
 
 //initial position of x
-float x_position = 0.0;
+float x_position = 0.0, y_position = 0.0, z_position = -15.0;
 float angle = 0.0;
 int state = 1;
 
@@ -48,9 +76,9 @@ void display() {
     //Translation is the shifting of the origin.
     //Translate first and then draw the object
 
-    // x,y=x*3 - Equation. We can use 3d parabola equation to implement path
-    glTranslatef(x_position,x_position,-8.0);
-    glRotatef(angle,1.0,1.0,1.0);
+    // x,y=x- Equation. We can use 3d parabola equation to implement path
+    glTranslatef(x_position,y_position,z_position);
+    glRotatef(angle,0.0,0.0,1.0);
 
     glShadeModel(GL_SMOOTH);
 
@@ -124,22 +152,28 @@ void timer(int) {
     //1000/60 is the frame rate
     glutTimerFunc(1000/60, timer, 0);
 
+    // Updating the angle
     angle += 0.8;
     if(angle > 360.0){
         angle -=  360.0;
     }
 
 
+    // Updating trajectory co-ordinates
     switch(state) {
     case 1:
-        if(x_position<5)
+        if(x_position<5){
             x_position+=0.015;
+            //y_position = x_position;
+            }
         else
             state=-1;
         break;
     case -1:
-        if(x_position>-5)
+        if(x_position>-5){
             x_position-=0.015;
+            //y_position = x_position;
+            }
         else
             state=1;
         break;
