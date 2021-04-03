@@ -2,6 +2,7 @@
 #include<GL/glu.h>
 #include<GL/gl.h>
 #include<bits/stdc++.h>
+#include<iomanip>
 #include "trajectory.h"
 
 #define PI 3.1415926535898
@@ -26,13 +27,15 @@ Points p,p1,p2;
 bool isInitial = true, newPath = false;
 double distanceBetweenPoints = 0.0;
 double timeOfPath = 0.0;
-int numberOfFrames = 0, frameindex = 1;
+double numberOfFrames = 0.0;
+double frameindex = 0.001;
 double eachFrameDurarion = 0.0;
 vector<float> directionVector;
 
 //initial position of x
 float x_position = 0.0, y_position = 0.0, z_position = -20.0;
 float angle = 90.0, angle_x = 0.0, angle_y = 1.0, angle_z = 0.0;
+int x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 
 void display();
@@ -57,7 +60,7 @@ void takeUserInput(){
 
     // Initial position
     x_position = points[0].x;
-    y_position = points[1].y;
+    y_position = points[0].y;
 
 	trajectory.points = points;
 	trajectory.points.push_back(points[0]);
@@ -131,7 +134,7 @@ void reshape(int w, int h) {
     glLoadIdentity();
 
     //projection window
-    gluPerspective(60,1,1.0,50.0);
+    gluPerspective(60,1,1.0,500.0);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -156,25 +159,35 @@ void timer(int) {
         distanceBetweenPoints = p.euclideanDistance(p1,p2);
 
         timeOfPath = distanceBetweenPoints/SPEED;
-        numberOfFrames = (int)(timeOfPath * 60);
+        numberOfFrames = (timeOfPath*60);
         eachFrameDurarion = distanceBetweenPoints/numberOfFrames;
 
         directionVector = trajectory.directionVector(p1,p2);
         isInitial = false;
         newPath = false;
     }
-    if (frameindex <= numberOfFrames){
 
-        x_position = x_position + (eachFrameDurarion*frameindex*0.001);
-        y_position = y_position + (eachFrameDurarion*frameindex*0.001);
 
-        frameindex++;
+    // Direction is much needed
+    if (frameindex < numberOfFrames){
+
+        x_position = x_position + (eachFrameDurarion*frameindex);
+        y_position = y_position + (eachFrameDurarion*frameindex);
+
+        frameindex = frameindex + 0.001;
     }else{
+
+        // Change x,y,z
+        x_position = p2.x;
+        y_position = p2.y;
+
         trajectory.cpi++;
         isInitial = true;
         newPath = true;
-        frameindex = 1;
+        frameindex = 0.001;
+
     }
+
 }
 
 
