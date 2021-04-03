@@ -1,6 +1,7 @@
 #ifndef TRAJECTORY_H_INCLUDED
 #define TRAJECTORY_H_INCLUDED
 #include<bits/stdc++.h>
+#include<cmath>
 
 using namespace std;
 
@@ -14,6 +15,11 @@ public:
         this->y=y;
         this->z=z;
 
+    }
+    float euclideanDistance(Points p1, Points p2){
+        return sqrt(
+            pow(p2.x-p1.x,2) + pow(p2.y-p1.y,2) + pow(p2.z-p1.z,2)
+        );
     }
 };
 
@@ -34,7 +40,7 @@ public:
 
     }
 
-    vector<float> findLine(Points a_point, Points b_point) {
+    vector<float> directionVector(Points a_point, Points b_point) {
         float a = (b_point.y - a_point.y)*(b_point.z-a_point.z);
         float b = (a_point.x - b_point.x)*(b_point.z-a_point.z);
         float c=  (a_point.x- b_point.x)*(b_point.y-a_point.y);
@@ -47,7 +53,7 @@ public:
         direction.push_back(da);
         direction.push_back(db);
         direction.push_back(dc);
-        return a1;
+        return direction;
 
     }
 

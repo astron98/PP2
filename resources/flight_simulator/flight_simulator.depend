@@ -72,13 +72,14 @@
 	<features.h>
 	<stddef.h>
 
-1617383739 source:/home/saketh/Desktop/PP2/PP2/resources/flight_simulator/main.cpp
+1617451741 source:/home/saketh/Desktop/PP2/PP2/resources/flight_simulator/main.cpp
 	<GL/glut.h>
 	<GL/glu.h>
 	<GL/gl.h>
 	<bits/stdc++.h>
 	"trajectory.h"
 
-1617370019 /home/saketh/Desktop/PP2/PP2/resources/flight_simulator/trajectory.h
+1617444839 /home/saketh/Desktop/PP2/PP2/resources/flight_simulator/trajectory.h
 	<bits/stdc++.h>
+	<cmath>
 

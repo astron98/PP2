@@ -10,25 +10,35 @@
 /*  D degrees of rotation */
 #define DEF_D 5
 
+#define SPEED 200.0
+
 using namespace std;
 
+
+/* GLOBAL VARIABLES */
 
 //trajectory class
 Trajectory trajectory;
 
+// Points
+Points p,p1,p2;
+// Trajectory related variables
+bool isInitial = true, newPath = false;
+double distanceBetweenPoints = 0.0;
+double timeOfPath = 0.0;
+int numberOfFrames = 0, frameindex = 1;
+double eachFrameDurarion = 0.0;
+vector<float> directionVector;
+
 //initial position of x
-float x_position = 0.0, y_position = 0.0, z_position = -15.0;
-int x_direction = 1, y_direction = 1, z_direction = 1;
-float angle = 90.0, angle_x = 1.0, angle_y = 1.0, angle_z = 0.0;
+float x_position = 0.0, y_position = 0.0, z_position = -20.0;
+float angle = 90.0, angle_x = 0.0, angle_y = 1.0, angle_z = 0.0;
 int N = 0;
 
 void display();
 void reshape(int, int);
 void timer(int);
 
-void updateDirections(){
-    x_direction = (trajectory.points[trajectory.cpi].x < trajectory.points[trajectory.cpi+1].x)?1:-1;
-}
 
 void takeUserInput(){
 
@@ -44,6 +54,10 @@ void takeUserInput(){
         cin>>point.x>>point.y>>point.z;
         points.push_back(point);
     }
+
+    // Initial position
+    x_position = points[0].x;
+    y_position = points[1].y;
 
 	trajectory.points = points;
 	trajectory.points.push_back(points[0]);
@@ -62,7 +76,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(200,100);
-    glutInitWindowSize(500,500);
+    glutInitWindowSize(1000,1000);
 
     glutCreateWindow("Flight");
 
@@ -77,8 +91,6 @@ int main(int argc, char** argv) {
 
 void display() {
 
-    //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    //Set background color to black and opaque
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -87,14 +99,11 @@ void display() {
 
     //Translation is the shifting of the origin.
     //Translate first and then draw the object
-
-    // x,y=x- Equation. We can use 3d parabola equation to implement path
     glTranslatef(x_position,y_position,z_position);
     glRotatef(angle,angle_x,angle_y,angle_z);
 
     glShadeModel(GL_SMOOTH);
 
-    //glPointSize(1.0);
     //draw the primistive/ load the model
     glBegin(GL_TRIANGLES);
 
@@ -122,7 +131,7 @@ void reshape(int w, int h) {
     glLoadIdentity();
 
     //projection window
-    gluPerspective(60,1,2.0,50.0);
+    gluPerspective(60,1,1.0,50.0);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -137,19 +146,35 @@ void timer(int) {
 
     // Updating the angle
 
-    // Movement
 
     // Logic
-    /*
-        1. Find the distance L :GLOBAL (distance)
-        2. Speed is constant   :GLOBAL (speed)
-        3. t = L/Speed         :GLOBAL (time)
-        4. M = t/(1/60)        :GLOBAL (Number of frames)
-        5. S = (L/M)           :GLOBAL ()
+    if(isInitial || newPath){
 
-        d = trajectory.findLine(trajectory.points[trajectory.cpi], trajectory.points[trajectory.cpi+1])
-        6. x_position = trajectory.points[trajectory.cpi].x + (d[0]*i*S)
-    */
+        p1 = trajectory.points[trajectory.cpi];
+        p2 = trajectory.points[trajectory.cpi+1];
+
+        distanceBetweenPoints = p.euclideanDistance(p1,p2);
+
+        timeOfPath = distanceBetweenPoints/SPEED;
+        numberOfFrames = (int)(timeOfPath * 60);
+        eachFrameDurarion = distanceBetweenPoints/numberOfFrames;
+
+        directionVector = trajectory.directionVector(p1,p2);
+        isInitial = false;
+        newPath = false;
+    }
+    if (frameindex <= numberOfFrames){
+
+        x_position = x_position + (eachFrameDurarion*frameindex*0.001);
+        y_position = y_position + (eachFrameDurarion*frameindex*0.001);
+
+        frameindex++;
+    }else{
+        trajectory.cpi++;
+        isInitial = true;
+        newPath = true;
+        frameindex = 1;
+    }
 }
 
 
