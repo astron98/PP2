@@ -28,8 +28,8 @@ bool isInitial = true, newPath = false;
 double distanceBetweenPoints = 0.0;
 double timeOfPath = 0.0;
 double numberOfFrames = 0.0;
-double frameindex = 0.001;
-double eachFrameDurarion = 0.0;
+double frameindex = 0.0001;
+double eachFrameLength = 0.0;
 vector<float> directionVector;
 
 //initial position of x
@@ -160,9 +160,11 @@ void timer(int) {
 
         timeOfPath = distanceBetweenPoints/SPEED;
         numberOfFrames = (timeOfPath*60);
-        eachFrameDurarion = distanceBetweenPoints/numberOfFrames;
+        eachFrameLength = distanceBetweenPoints/numberOfFrames;
 
-        directionVector = trajectory.directionVector(p1,p2);
+        //directionVector = trajectory.directionVector(p1,p2);
+        x_direction = (p2.x-p1.x);
+        y_direction = (p2.y-p1.y);
         isInitial = false;
         newPath = false;
     }
@@ -171,10 +173,10 @@ void timer(int) {
     // Direction is much needed
     if (frameindex < numberOfFrames){
 
-        x_position = x_position + (eachFrameDurarion*frameindex);
-        y_position = y_position + (eachFrameDurarion*frameindex);
+        x_position = x_position + (x_direction*eachFrameLength*frameindex);
+        y_position = y_position + (y_direction*eachFrameLength*frameindex);
 
-        frameindex = frameindex + 0.001;
+        frameindex = frameindex + 0.0001;
     }else{
 
         // Change x,y,z
@@ -184,9 +186,10 @@ void timer(int) {
         trajectory.cpi++;
         isInitial = true;
         newPath = true;
-        frameindex = 0.001;
+        frameindex = 0.0001;
 
     }
+    cout<<x_position<<" "<<y_position<<endl;
 
 }
 
