@@ -142,6 +142,15 @@ void display() {
     }
 
     glEnd();
+
+    // Path Lines
+    glLoadIdentity();
+    glBegin(GL_LINE_STRIP);
+        for(Points &p:trajectory.points){
+            glVertex3f(p.x, p.y, p.z);
+        }
+    glEnd();
+
     //will display the framebuffer on screen
     glutSwapBuffers();
 }
@@ -155,7 +164,7 @@ void reshape(int w, int h) {
     glLoadIdentity();
 
     //projection window
-    gluPerspective(60,1,1.0,500.0);
+    gluPerspective(45,1,1.0,500.0);
 
     glMatrixMode(GL_MODELVIEW);
 }
