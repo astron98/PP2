@@ -63,12 +63,17 @@ void loadTrajectory(){
 //    cin>>n;
 
     vector<Points> points {
-    Points(0,0,-20),
+    /*Points(0,0,-20),
     Points(3,1,-25),
     Points(4,3,-30),
     Points(2,5,-25),
     Points(1,3,-20),
-    Points(-5,5,-30)
+    Points(-5,5,-30)*/
+
+    Points(-2, -6, -25),
+    Points(6,10,-20),
+    Points(8,-5,-12),
+    Points(-6,2,-20)
     };
 //    Points point;
 //    for(int i=0;i<n;i++){
@@ -164,7 +169,7 @@ void reshape(int w, int h) {
     glLoadIdentity();
 
     //projection window
-    gluPerspective(45,1,1.0,500.0);
+    gluPerspective(90,1,1.0,500.0);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -208,7 +213,7 @@ void timer(int) {
 
 
     // Direction is much needed (0,0,0)->(5,10,0)
-    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.01 && p2.y-y_position<=0.01 && p2.z-z_direction<=0.01)){
+    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.1 && p2.y-y_position<=0.1 && p2.z-z_direction<=0.1)){
         x_position = x_position + (x_direction*eachFrameLength*frameindex); //0.001
         y_position = y_position + (y_direction*eachFrameLength*frameindex);
         z_position = z_position + (z_direction*eachFrameLength*frameindex);
