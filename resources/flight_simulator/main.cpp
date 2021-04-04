@@ -150,11 +150,16 @@ void timer(int) {
     // Updating the angle
 
 
-    // Logic
+    // Logic A->B->A
     if(isInitial || newPath){
+        if(trajectory.cpi==N) {
+            //stop when the plane complete one cycle on the trajectory.
+            return;
+        }
 
-        p1 = trajectory.points[trajectory.cpi];
-        p2 = trajectory.points[trajectory.cpi+1];
+        //%N is to create a cycle  in the path array.
+        p1 = trajectory.points[trajectory.cpi%N];
+        p2 = trajectory.points[(trajectory.cpi+1)%N];
 
         distanceBetweenPoints = p.euclideanDistance(p1,p2);
 
@@ -170,10 +175,9 @@ void timer(int) {
     }
 
 
-    // Direction is much needed
-    if (frameindex < numberOfFrames){
-
-        x_position = x_position + (x_direction*eachFrameLength*frameindex);
+    // Direction is much needed (0,0,0)->(5,10,0)
+    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.01 && p2.y-y_position<=0.01)){
+        x_position = x_position + (x_direction*eachFrameLength*frameindex); //0.001
         y_position = y_position + (y_direction*eachFrameLength*frameindex);
 
         frameindex = frameindex + 0.0001;
