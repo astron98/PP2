@@ -2,9 +2,8 @@
 #include<GL/glu.h>
 #include<GL/gl.h>
 #include<bits/stdc++.h>
-#include<iomanip>
 #include "trajectory.h"
-
+#include<cmath>
 #define PI 3.1415926535898
 #define Cos(th) cos(PI/180*(th))
 #define Sin(th) sin(PI/180*(th))
@@ -23,6 +22,7 @@ Trajectory trajectory;
 
 // Points
 Points p,p1,p2;
+
 // Trajectory related variables
 bool isInitial = true, newPath = false;
 double distanceBetweenPoints = 0.0;
@@ -34,8 +34,8 @@ vector<float> directionVector;
 
 //initial position of x
 float x_position = 0.0, y_position = 0.0, z_position = -20.0;
-float angle = 90.0, angle_x = 0.0, angle_y = 1.0, angle_z = 0.0;
-int x_direction = 0, y_direction = 0, z_direction = 0;
+float angle_x = 90.0, angle_y = 90.0, angle_z = 90.0;
+float x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 
 void display();
@@ -43,6 +43,19 @@ void reshape(int, int);
 void timer(int);
 
 
+// Under development
+void updateAngles(float Ax, float Ay, float Az){
+
+    float A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
+
+    angle_x = acos(Ax/A);
+    angle_y = acos(Ay/A);
+    angle_z = acos(Az/A);
+
+    cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
+}
+
+// Load the trajectories from a file
 void loadTrajectory(){
 
 //    int n=0;
@@ -50,12 +63,13 @@ void loadTrajectory(){
 //    cin>>n;
 
     vector<Points> points {
-    Points(0,0,-12),
-    Points(4,5,-20),
-    Points(2,6,-8),
-    Points(0,4,-14)
+    Points(0,0,-20),
+    Points(3,1,-25),
+    Points(4,3,-30),
+    Points(2,5,-25),
+    Points(1,3,-20),
+    Points(-5,5,-30)
     };
-
 //    Points point;
 //    for(int i=0;i<n;i++){
 //        cout<<"Enter x, y, z for point "<<(i+1)<<endl;
@@ -106,10 +120,11 @@ void display() {
     //will reset the coordinate system.
     glLoadIdentity();
 
-    //Translation is the shifting of the origin.
-    //Translate first and then draw the object
+    //Translation is the shifting of the origin. - Translate first and then draw the object
     glTranslatef(x_position,y_position,z_position);
-    glRotatef(angle,angle_x,angle_y,angle_z);
+    glRotatef(angle_x,1.0,0.0,0.0);
+    glRotatef(angle_y,0.0,1.0,0.0);
+    glRotatef(angle_z,0.0,0.0,1.0);
 
     glShadeModel(GL_SMOOTH);
 
@@ -153,9 +168,6 @@ void timer(int) {
     //1000/60 is the frame rate
     glutTimerFunc(1000/60, timer, 0);
 
-    // Updating the angle
-
-
     // Logic A->B->A
     if(isInitial || newPath){
         if(trajectory.cpi==N) {
@@ -177,13 +189,17 @@ void timer(int) {
         x_direction = (p2.x-p1.x);
         y_direction = (p2.y-p1.y);
         z_direction = (p2.z-p1.z);
+
+        // Update the angles
+        //updateAngles(x_direction, y_direction, z_direction);
+
         isInitial = false;
         newPath = false;
     }
 
 
     // Direction is much needed (0,0,0)->(5,10,0)
-    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.01 && p2.y-y_position<=0.01 && p2.z-z_position<=0.01)){
+    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.01 && p2.y-y_position<=0.01 && p2.z-z_direction<=0.01)){
         x_position = x_position + (x_direction*eachFrameLength*frameindex); //0.001
         y_position = y_position + (y_direction*eachFrameLength*frameindex);
         z_position = z_position + (z_direction*eachFrameLength*frameindex);
