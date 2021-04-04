@@ -43,24 +43,30 @@ void reshape(int, int);
 void timer(int);
 
 
-void takeUserInput(){
+void loadTrajectory(){
 
-    int n=0;
-    cout<<"Enter the number of points: ";
-    cin>>n;
+//    int n=0;
+//    cout<<"Enter the number of points: ";
+//    cin>>n;
 
-    vector<Points> points;
+    vector<Points> points {
+    Points(0,0,-12),
+    Points(4,5,-20),
+    Points(2,6,-8),
+    Points(0,4,-14)
+    };
 
-    Points point;
-    for(int i=0;i<n;i++){
-        cout<<"Enter x, y, z for point "<<(i+1)<<endl;
-        cin>>point.x>>point.y>>point.z;
-        points.push_back(point);
-    }
+//    Points point;
+//    for(int i=0;i<n;i++){
+//        cout<<"Enter x, y, z for point "<<(i+1)<<endl;
+//        cin>>point.x>>point.y>>point.z;
+//        points.push_back(point);
+//    }
 
     // Initial position
     x_position = points[0].x;
     y_position = points[0].y;
+    z_position = points[0].z;
 
 	trajectory.points = points;
 	trajectory.points.push_back(points[0]);
@@ -74,12 +80,12 @@ void init(){
 
 int main(int argc, char** argv) {
 
-    takeUserInput();
+    loadTrajectory();
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(200,100);
-    glutInitWindowSize(1000,1000);
+    glutInitWindowSize(1920,1200);
 
     glutCreateWindow("Flight");
 
@@ -170,15 +176,17 @@ void timer(int) {
         //directionVector = trajectory.directionVector(p1,p2);
         x_direction = (p2.x-p1.x);
         y_direction = (p2.y-p1.y);
+        z_direction = (p2.z-p1.z);
         isInitial = false;
         newPath = false;
     }
 
 
     // Direction is much needed (0,0,0)->(5,10,0)
-    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.01 && p2.y-y_position<=0.01)){
+    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.01 && p2.y-y_position<=0.01 && p2.z-z_position<=0.01)){
         x_position = x_position + (x_direction*eachFrameLength*frameindex); //0.001
         y_position = y_position + (y_direction*eachFrameLength*frameindex);
+        z_position = z_position + (z_direction*eachFrameLength*frameindex);
 
         frameindex = frameindex + 0.0001;
     }else{
@@ -186,6 +194,7 @@ void timer(int) {
         // Change x,y,z
         x_position = p2.x;
         y_position = p2.y;
+        z_position = p2.z;
 
         trajectory.cpi++;
         isInitial = true;
@@ -193,10 +202,6 @@ void timer(int) {
         frameindex = 0.0001;
 
     }
-    cout<<x_position<<" "<<y_position<<endl;
+    cout<<x_position<<" "<<y_position<<" "<<z_position<<endl;
 
 }
-
-
-
-
