@@ -199,7 +199,7 @@ void reshape(int w, int h) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    //projection window
+    //projection-window
     gluPerspective(60,1,1.0,500.0);
 
     glMatrixMode(GL_MODELVIEW);
