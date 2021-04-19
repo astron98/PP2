@@ -23,6 +23,9 @@ Trajectory trajectory;
 // Points
 Points p,p1,p2;
 
+//global direction_vector
+Points dv(0.0, 0.0, 0.0);
+
 // Trajectory related variables
 bool isInitial = true, newPath = false;
 double distanceBetweenPoints = 0.0;
@@ -34,7 +37,8 @@ vector<float> directionVector;
 
 //initial position of x
 float x_position = 0.0, y_position = 0.0, z_position = -20.0;
-float angle_x = 90.0, angle_y = 90.0, angle_z = 90.0;
+float angle_x = 90.0, angle_y = 90.0, angle_z = 90.0, rotAngle = 0.0;
+Points rotVec;
 float x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 
@@ -44,16 +48,29 @@ void timer(int);
 
 
 // Under development
-void updateAngles(float Ax, float Ay, float Az){
+//void updateAngles(float Ax, float Ay, float Az){
+//
+//    float A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
+//     direction cosines
+//    angle_x = acos(Ax/A);
+//    angle_y = acos(Ay/A);
+//    angle_z = acos(Az/A);
+//
+//    cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
+//}
+void updateAngles(Points p, Points q) {
+    float dotProduct = p.x*q.x + p.y*q.y + p.z*q.z;
+    float  modP =  sqrt(pow(p.x,2)+pow(p.y,2)+pow(p.z,2));
+    float modQ =  sqrt(pow(q.x,2)+pow(q.y,2)+pow(q.z,2));
 
-    float A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
+    rotAngle = (acos(dotProduct/ (modP * modQ)));
 
-    angle_x = acos(Ax/A);
-    angle_y = acos(Ay/A);
-    angle_z = acos(Az/A);
+    //update the rotation coordinates
+//    rotVec = p; //glRotate(angle, x, y,z);
 
-    cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
+    cout << "rotAngle: " <<rotAngle<<"\n";
 }
+
 
 // Load the trajectories from a file
 void loadTrajectory(){
@@ -127,26 +144,44 @@ void display() {
 
     //Translation is the shifting of the origin. - Translate first and then draw the object
     glTranslatef(x_position,y_position,z_position);
-    glRotatef(angle_x,1.0,0.0,0.0);
-    glRotatef(angle_y,0.0,1.0,0.0);
-    glRotatef(angle_z,0.0,0.0,1.0);
+//     glRotatef(angle_x,1.0,0.0,0.0);
+//     glRotatef(angle_y,0.0,1.0,0.0);
+//     glRotatef(angle_z,0.0,0.0,1.0);
+    glRotatef(rotAngle, rotVec.x, rotVec.y, rotVec.z);
 
     glShadeModel(GL_SMOOTH);
 
     //draw the primistive/ load the model
-    glBegin(GL_TRIANGLES);
+//    glBegin(GL_TRIANGLES);
+//
+//    //Colors are assigned to vertices of the 'Flight Model'
+//    for (int k=0;k<=360;k+=DEF_D){
+//      glColor3f(0.0,0.0,1.0);
+//      glVertex3f(0,0,1);
+//      glColor3f(0.0,1.0,0.0);
+//      glVertex3f(Cos(k),Sin(k),0);
+//      glColor3f(1.0,0.0,0.0);
+//      glVertex3f(Cos(k+DEF_D),Sin(k+DEF_D),0);
+//    }
+//
+//    glEnd();
+    glColor3f(1.0,1.0, 1.0);
+    glBegin(GL_POLYGON);
+    glVertex3f(0.0 , 1.0 ,   0.0);
+    glVertex3f(3.0 , 1.0 ,   0.0);
+    glVertex3f(4.0 , 0.0 ,   0.0);
+    glVertex3f(3.0 , -1.0,   0.0);
+    glVertex3f(0.0 , -1.0,   0.0);
 
-    //Colors are assigned to vertices
-    for (int k=0;k<=360;k+=DEF_D){
-      glColor3f(0.0,0.0,1.0);
-      glVertex3f(0,0,1);
-      glColor3f(0.0,1.0,0.0);
-      glVertex3f(Cos(k),Sin(k),0);
-      glColor3f(1.0,0.0,0.0);
-      glVertex3f(Cos(k+DEF_D),Sin(k+DEF_D),0);
-    }
 
+
+//    glVertex3f(0.0 +dv.x, 1.0+dv.y ,   0.0+dv.z);
+//    glVertex3f(0.0 +dv.x, -1.0+dv.y ,   0.0+dv.z);
+//    glVertex3f(3.0 +dv.x, -1.0+dv.y ,   0.0+dv.z);
+//    glVertex3f(4.0 +dv.x, 0.0+dv.y ,   0.0+dv.z);
+//    glVertex3f(3.0 +dv.x, 1.0+dv.y ,   0.0+dv.z);
     glEnd();
+
 
     // Path Lines
     glLoadIdentity();
@@ -193,6 +228,8 @@ void timer(int) {
         p1 = trajectory.points[trajectory.cpi%N];
         p2 = trajectory.points[(trajectory.cpi+1)%N];
 
+        //Rotate between origin and 1st line path
+
         distanceBetweenPoints = p.euclideanDistance(p1,p2);
 
         timeOfPath = distanceBetweenPoints/SPEED;
@@ -204,13 +241,34 @@ void timer(int) {
         y_direction = (p2.y-p1.y);
         z_direction = (p2.z-p1.z);
 
+
+        //direction vectors for line A
+        Points dvA(x_direction,y_direction,z_direction);
+
+        Points p3;
+        if(trajectory.cpi!=0)
+            p3 = trajectory.points[(trajectory.cpi-1)%N];
+
+        //direction vectors for line B
+        Points dvB(p1.x-p3.x, p1.y-p3.y, p1.z-p3.z);
+
+        //consider the angle between the 'flight at origin' and 'flight at the 1st line AB'
+        if(trajectory.cpi==0) {
+            dvB = dvA;
+            dvA.x = 4.0, dvA.y = 0, dvA.z = 0;
+        }
+
         // Update the angles
-        //updateAngles(x_direction, y_direction, z_direction);
+        updateAngles(dvA, dvB);
+        // glRotatef(rotAngle, p1.x-p3.x, p1.y-p3.y, p1.z-p3.z);
+
+        rotVec = p1;
 
         isInitial = false;
         newPath = false;
     }
 
+    float frameRate = 0.00001;
 
     // Direction is much needed (0,0,0)->(5,10,0)
     if (frameindex < numberOfFrames && !(p2.x-x_position<=0.1 && p2.y-y_position<=0.1 && p2.z-z_direction<=0.1)){
@@ -218,7 +276,12 @@ void timer(int) {
         y_position = y_position + (y_direction*eachFrameLength*frameindex);
         z_position = z_position + (z_direction*eachFrameLength*frameindex);
 
-        frameindex = frameindex + 0.0001;
+        //updating the values of global direction vector
+//        dv.x = x_direction;
+//        dv.y = y_direction;
+//        dv.z = z_direction;
+
+        frameindex = frameindex + frameRate;
     }else{
 
         // Change x,y,z
@@ -229,9 +292,9 @@ void timer(int) {
         trajectory.cpi++;
         isInitial = true;
         newPath = true;
-        frameindex = 0.0001;
+        frameindex = frameRate;
 
     }
-    cout<<x_position<<" "<<y_position<<" "<<z_position<<endl;
+//    cout<<x_position<<" "<<y_position<<" "<<z_position<<endl;
 
 }
