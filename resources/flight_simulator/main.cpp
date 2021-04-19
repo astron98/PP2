@@ -23,6 +23,13 @@ Trajectory trajectory;
 // Points
 Points p,p1,p2;
 
+// Model vertices
+Points v1(0.0, 1.0, 0.0),
+       v2(0.0,-1.0, 0.0),
+       v3(3.0,-1.0, 0.0),
+       v4(4.0,0.0,0.0),
+       v5(3.0, 1.0, 0.0);
+
 // Trajectory related variables
 bool isInitial = true, newPath = false;
 double distanceBetweenPoints = 0.0;
@@ -34,7 +41,7 @@ vector<float> directionVector;
 
 //initial position of x
 float x_position = 0.0, y_position = 0.0, z_position = -20.0;
-float angle_x = 90.0, angle_y = 90.0, angle_z = 90.0;
+float angle_x = 90.0, angle_y = 90.0, angle_z = 90.0,rotAngle = 90.0;
 float x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 
@@ -55,6 +62,16 @@ void updateAngles(float Ax, float Ay, float Az){
     cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
 }
 
+void updateAngle(Points p, Points q) {
+   float dotProduct = p.x*q.x + p.y*q.y + p.z*q.z;
+   float modP =  sqrt(pow(p.x,2)+pow(p.y,2)+pow(p.z,2));
+   float modQ =  sqrt(pow(q.x,2)+pow(q.y,2)+pow(q.z,2));
+
+   rotAngle = acos(dotProduct/ (modP * modQ));
+
+}
+
+
 // Load the trajectories from a file
 void loadTrajectory(){
 
@@ -63,17 +80,17 @@ void loadTrajectory(){
 //    cin>>n;
 
     vector<Points> points {
-    /*Points(0,0,-20),
-    Points(3,1,-25),
-    Points(4,3,-30),
+    Points(0,0,-20),
+    Points(15,1,-45),
+    Points(25,3,-55),
     Points(2,5,-25),
     Points(1,3,-20),
-    Points(-5,5,-30)*/
+    Points(-5,5,-30)
 
-    Points(-2, -6, -25),
+    /*Points(-2, -6, -25),
     Points(6,10,-20),
     Points(8,-5,-12),
-    Points(-6,2,-20)
+    Points(-6,2,-20)*/
     };
 //    Points point;
 //    for(int i=0;i<n;i++){
@@ -89,6 +106,16 @@ void loadTrajectory(){
 
 	trajectory.points = points;
 	trajectory.points.push_back(points[0]);
+
+	// Initialise points
+	p1.x = points[0].x;
+	p1.y = points[0].y;
+	p1.z = points[0].z;
+
+	p2.x = points[1].x;
+	p2.y = points[1].y;
+	p2.z = points[1].z;
+
 	N = points.size();
 }
 
@@ -125,31 +152,34 @@ void display() {
     //will reset the coordinate system.
     glLoadIdentity();
 
+    glPushMatrix();
     //Translation is the shifting of the origin. - Translate first and then draw the object
     glTranslatef(x_position,y_position,z_position);
+
     glRotatef(angle_x,1.0,0.0,0.0);
     glRotatef(angle_y,0.0,1.0,0.0);
     glRotatef(angle_z,0.0,0.0,1.0);
 
     glShadeModel(GL_SMOOTH);
 
-    //draw the primistive/ load the model
-    glBegin(GL_TRIANGLES);
 
-    //Colors are assigned to vertices
-    for (int k=0;k<=360;k+=DEF_D){
-      glColor3f(0.0,0.0,1.0);
-      glVertex3f(0,0,1);
-      glColor3f(0.0,1.0,0.0);
-      glVertex3f(Cos(k),Sin(k),0);
-      glColor3f(1.0,0.0,0.0);
-      glVertex3f(Cos(k+DEF_D),Sin(k+DEF_D),0);
-    }
+    glColor3f(0.0,1.0,1.0);
+    glutWireCone(1,2,4,70);
 
-    glEnd();
+    /*glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,1.0);
+    glVertex3f(v1.x,v1.y,v1.z);
+    glVertex3f(v2.x,v2.y,v2.z);
+    glColor3f(0.0,1.0,1.0);
+    glVertex3f(v3.x,v3.y,v3.z);
+    glVertex3f(v4.x,v4.y,v4.z);
+    glColor3f(0.0,1.0,1.0);
+    glVertex3f(v5.x,v5.y,v5.z);
+    glEnd();*/
 
     // Path Lines
     glLoadIdentity();
+    glColor3f(1.0,0.0,0.0);
     glBegin(GL_LINE_STRIP);
         for(Points &p:trajectory.points){
             glVertex3f(p.x, p.y, p.z);
@@ -157,6 +187,7 @@ void display() {
     glEnd();
 
     //will display the framebuffer on screen
+    glPopMatrix();
     glutSwapBuffers();
 }
 
@@ -169,7 +200,7 @@ void reshape(int w, int h) {
     glLoadIdentity();
 
     //projection window
-    gluPerspective(90,1,1.0,500.0);
+    gluPerspective(60,1,1.0,500.0);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -205,7 +236,8 @@ void timer(int) {
         z_direction = (p2.z-p1.z);
 
         // Update the angles
-        //updateAngles(x_direction, y_direction, z_direction);
+
+        // Update model vertices
 
         isInitial = false;
         newPath = false;
@@ -214,9 +246,16 @@ void timer(int) {
 
     // Direction is much needed (0,0,0)->(5,10,0)
     if (frameindex < numberOfFrames && !(p2.x-x_position<=0.1 && p2.y-y_position<=0.1 && p2.z-z_direction<=0.1)){
-        x_position = x_position + (x_direction*eachFrameLength*frameindex); //0.001
-        y_position = y_position + (y_direction*eachFrameLength*frameindex);
-        z_position = z_position + (z_direction*eachFrameLength*frameindex);
+
+        float xRate = (x_direction*eachFrameLength*frameindex),
+              yRate = (y_direction*eachFrameLength*frameindex),
+              zRate = (z_direction*eachFrameLength*frameindex);
+
+        x_position = x_position + xRate; //0.001
+        y_position = y_position + yRate;
+        z_position = z_position + zRate;
+
+        // Vertex update
 
         frameindex = frameindex + 0.0001;
     }else{
@@ -226,6 +265,10 @@ void timer(int) {
         y_position = p2.y;
         z_position = p2.z;
 
+        angle_x -= 30;
+        angle_y += 180;
+
+        //
         trajectory.cpi++;
         isInitial = true;
         newPath = true;
@@ -235,3 +278,4 @@ void timer(int) {
     cout<<x_position<<" "<<y_position<<" "<<z_position<<endl;
 
 }
+
