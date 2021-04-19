@@ -41,7 +41,7 @@ vector<float> directionVector;
 
 //initial position of x
 float x_position = 0.0, y_position = 0.0, z_position = -20.0;
-float angle_x = 90.0, angle_y = 90.0, angle_z = 90.0,rotAngle = 90.0;
+float angle_x = 90.0, angle_y = 0.0, angle_z = -90.0,rotAngle = 90.0;
 float x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 
@@ -152,9 +152,9 @@ void display() {
     //will reset the coordinate system.
     glLoadIdentity();
 
-    glPushMatrix();
     //Translation is the shifting of the origin. - Translate first and then draw the object
     glTranslatef(x_position,y_position,z_position);
+    gluLookAt(0,1,3,0,0,0,0,1,0) ;
 
     glRotatef(angle_x,1.0,0.0,0.0);
     glRotatef(angle_y,0.0,1.0,0.0);
@@ -163,19 +163,35 @@ void display() {
     glShadeModel(GL_SMOOTH);
 
 
-    glColor3f(0.0,1.0,1.0);
-    glutWireCone(1,2,4,70);
+    glPushMatrix();
+        glScalef(.5,1,.5);
+        glColor3f(0.0,0.0,0.0);
+        glutWireCube(1);
+    glPopMatrix();
 
-    /*glBegin(GL_POLYGON);
-    glColor3f(0.0,0.0,1.0);
-    glVertex3f(v1.x,v1.y,v1.z);
-    glVertex3f(v2.x,v2.y,v2.z);
-    glColor3f(0.0,1.0,1.0);
-    glVertex3f(v3.x,v3.y,v3.z);
-    glVertex3f(v4.x,v4.y,v4.z);
-    glColor3f(0.0,1.0,1.0);
-    glVertex3f(v5.x,v5.y,v5.z);
-    glEnd();*/
+    glPushMatrix();
+
+        glTranslatef(0,0,0);
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.0,1.0,1.0);
+
+        glVertex3f(0.0,1.0,0.0);
+        glVertex3f(-0.25,0.5,0.25);
+        glVertex3f(0.25,0.5,0.25);
+                  // Begin drawing the pyramid with 4 triangles
+        glVertex3f(0.0,1.0,0.0);
+        glVertex3f(0.25,0.5,0.25);
+        glVertex3f(0.25,0.5,-0.25);
+
+        glVertex3f(0.0,1.0,0.0);
+        glVertex3f(0.25,0.5,-0.25);
+        glVertex3f(-0.25,0.5,-0.25);
+
+        glVertex3f(0.0,1.0,0.0);
+        glVertex3f(-0.25,0.5,-0.25);
+        glVertex3f(-0.25,0.5,0.25);
+        glEnd();
+    glPopMatrix();
 
     // Path Lines
     glLoadIdentity();
@@ -187,7 +203,6 @@ void display() {
     glEnd();
 
     //will display the framebuffer on screen
-    glPopMatrix();
     glutSwapBuffers();
 }
 
@@ -265,8 +280,8 @@ void timer(int) {
         y_position = p2.y;
         z_position = p2.z;
 
-        angle_x -= 30;
-        angle_y += 180;
+        //angle_x -= 30;
+        //angle_y += 180;
 
         //
         trajectory.cpi++;
