@@ -37,12 +37,12 @@ double timeOfPath = 0.0;
 double numberOfFrames = 0.0;
 double frameindex = 0.0001;
 double eachFrameLength = 0.0;
-vector<float> directionVector;
+vector<double> directionVector;
 
 //initial position of x
-float x_position = 0.0, y_position = 0.0, z_position = -20.0;
-float angle_x = 90.0, angle_y = 0.0, angle_z = -90.0,rotAngle = 90.0;
-float x_direction = 0, y_direction = 0, z_direction = 0;
+double x_position = 0.0, y_position = 0.0, z_position = -20.0;
+double angle_x = 60.0, angle_y = 0.0, angle_z = -90.0,rotAngle = 90.0;
+double x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 
 void display();
@@ -51,9 +51,9 @@ void timer(int);
 
 
 // Under development
-void updateAngles(float Ax, float Ay, float Az){
+void updateAngles(double Ax, double Ay, double Az){
 
-    float A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
+    double A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
 
     angle_x = acos(Ax/A);
     angle_y = acos(Ay/A);
@@ -63,9 +63,9 @@ void updateAngles(float Ax, float Ay, float Az){
 }
 
 void updateAngle(Points p, Points q) {
-   float dotProduct = p.x*q.x + p.y*q.y + p.z*q.z;
-   float modP =  sqrt(pow(p.x,2)+pow(p.y,2)+pow(p.z,2));
-   float modQ =  sqrt(pow(q.x,2)+pow(q.y,2)+pow(q.z,2));
+   double dotProduct = p.x*q.x + p.y*q.y + p.z*q.z;
+   double modP =  sqrt(pow(p.x,2)+pow(p.y,2)+pow(p.z,2));
+   double modQ =  sqrt(pow(q.x,2)+pow(q.y,2)+pow(q.z,2));
 
    rotAngle = acos(dotProduct/ (modP * modQ));
 
@@ -80,17 +80,10 @@ void loadTrajectory(){
 //    cin>>n;
 
     vector<Points> points {
-    Points(0,0,-20),
-    Points(15,1,-45),
-    Points(25,3,-55),
-    Points(2,5,-25),
-    Points(1,3,-20),
-    Points(-5,5,-30)
+    //Points(0,0,-20),Points(15,1,-45),Points(25,3,-55),Points(2,5,-25),Points(1,3,-20),Points(-5,5,-30)
+    Points(-12,-13,-20),Points(-2,-13,-20),Points(6,-7,-20),Points(8,0,-20),Points(6,10,-35),Points(3,13,-35),Points(-3,8,-25),Points(-4,6,-24),Points(-7,2,-25),Points(-11,-10,-20)
+    //Points(-12,-13,-20),Points(-5,-13,-20),Points(5,-7,-20),Points(-4,-4,-20),Points(-6,-8,-20),Points(-10,-11,-20)
 
-    /*Points(-2, -6, -25),
-    Points(6,10,-20),
-    Points(8,-5,-12),
-    Points(-6,2,-20)*/
     };
 //    Points point;
 //    for(int i=0;i<n;i++){
@@ -106,15 +99,6 @@ void loadTrajectory(){
 
 	trajectory.points = points;
 	trajectory.points.push_back(points[0]);
-
-	// Initialise points
-	p1.x = points[0].x;
-	p1.y = points[0].y;
-	p1.z = points[0].z;
-
-	p2.x = points[1].x;
-	p2.y = points[1].y;
-	p2.z = points[1].z;
 
 	N = points.size();
 }
@@ -193,6 +177,7 @@ void display() {
         glEnd();
     glPopMatrix();
 
+
     // Path Lines
     glLoadIdentity();
     glColor3f(1.0,0.0,0.0);
@@ -201,6 +186,7 @@ void display() {
             glVertex3f(p.x, p.y, p.z);
         }
     glEnd();
+
 
     //will display the framebuffer on screen
     glutSwapBuffers();
@@ -220,6 +206,22 @@ void reshape(int w, int h) {
     glMatrixMode(GL_MODELVIEW);
 }
 
+bool checkPrecision(double point_i, double point_f){
+
+    bool result=false;
+    double difference = (point_i-point_f);
+    return (difference<=0.09);
+
+}
+
+bool findMaxDifference(double a, double b){
+    return (a<b);
+}
+
+/*
+double maxDifference = std::max({p2.x-x_position, p2.y-y_position, p2.z-z_position},findMaxDifference);
+*/
+
 void timer(int) {
 
     //even the display() function is called 60 times in a second(1000 millisec)
@@ -236,8 +238,8 @@ void timer(int) {
         }
 
         //%N is to create a cycle  in the path array.
-        p1 = trajectory.points[trajectory.cpi%N];
-        p2 = trajectory.points[(trajectory.cpi+1)%N];
+        p1 = trajectory.points[trajectory.cpi];
+        p2 = trajectory.points[trajectory.cpi+1];
 
         distanceBetweenPoints = p.euclideanDistance(p1,p2);
 
@@ -250,19 +252,20 @@ void timer(int) {
         y_direction = (p2.y-p1.y);
         z_direction = (p2.z-p1.z);
 
-        // Update the angles
-
-        // Update model vertices
-
         isInitial = false;
         newPath = false;
+
+        cout<<"-----PATH START-----"<<endl;
     }
 
-
+    cout<<"Current Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
     // Direction is much needed (0,0,0)->(5,10,0)
-    if (frameindex < numberOfFrames && !(p2.x-x_position<=0.1 && p2.y-y_position<=0.1 && p2.z-z_direction<=0.1)){
 
-        float xRate = (x_direction*eachFrameLength*frameindex),
+    // Update the check condition
+    if (frameindex<= numberOfFrames && !(checkPrecision(p2.x,x_position) && checkPrecision(p2.y,y_position) && checkPrecision(p2.z,z_position)))
+    {
+
+        double xRate = (x_direction*eachFrameLength*frameindex),
               yRate = (y_direction*eachFrameLength*frameindex),
               zRate = (z_direction*eachFrameLength*frameindex);
 
@@ -270,9 +273,10 @@ void timer(int) {
         y_position = y_position + yRate;
         z_position = z_position + zRate;
 
-        // Vertex update
-
         frameindex = frameindex + 0.0001;
+
+        cout<<"Next Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
+
     }else{
 
         // Change x,y,z
@@ -280,17 +284,15 @@ void timer(int) {
         y_position = p2.y;
         z_position = p2.z;
 
-        //angle_x -= 30;
-        //angle_y += 180;
-
-        //
         trajectory.cpi++;
-        isInitial = true;
+        isInitial = false;
         newPath = true;
+
         frameindex = 0.0001;
 
+        cout<<"-----PATH END-----"<<endl;
+
     }
-    cout<<x_position<<" "<<y_position<<" "<<z_position<<endl;
 
 }
 

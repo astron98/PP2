@@ -7,16 +7,16 @@ using namespace std;
 
 class Points{
 public:
-    float x,y,z;
+    double x,y,z;
     Points(){}
-    Points(float x, float y, float z){
+    Points(double x, double y, double z){
 
         this->x=x;
         this->y=y;
         this->z=z;
 
     }
-    float euclideanDistance(Points p1, Points p2){
+    double euclideanDistance(Points p1, Points p2){
         return sqrt(
             pow(p2.x-p1.x,2) + pow(p2.y-p1.y,2) + pow(p2.z-p1.z,2)
         );
@@ -40,16 +40,16 @@ public:
 
     }
 
-    vector<float> directionVector(Points a_point, Points b_point) {
-        float a = (b_point.y - a_point.y)*(b_point.z-a_point.z);
-        float b = (a_point.x - b_point.x)*(b_point.z-a_point.z);
-        float c=  (a_point.x- b_point.x)*(b_point.y-a_point.y);
-        float d = a*a_point.x + b*a_point.y+c*a_point.z;
-        float da= -d/a;
-        float db= -d/b;
-        float dc= -d/c;
+    vector<double> directionVector(Points a_point, Points b_point) {
+        double a = (b_point.y - a_point.y)*(b_point.z-a_point.z);
+        double b = (a_point.x - b_point.x)*(b_point.z-a_point.z);
+        double c=  (a_point.x- b_point.x)*(b_point.y-a_point.y);
+        double d = a*a_point.x + b*a_point.y+c*a_point.z;
+        double da= -d/a;
+        double db= -d/b;
+        double dc= -d/c;
 
-        vector<float> direction;
+        vector<double> direction;
         direction.push_back(da);
         direction.push_back(db);
         direction.push_back(dc);
