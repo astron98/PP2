@@ -10,7 +10,7 @@
 /*  D degrees of rotation */
 #define DEF_D 5
 
-#define SPEED 200.0
+#define SPEED 150.0
 
 using namespace std;
 
@@ -35,7 +35,7 @@ bool isInitial = true, newPath = false;
 double distanceBetweenPoints = 0.0;
 double timeOfPath = 0.0;
 double numberOfFrames = 0.0;
-double frameindex = 0.0001;
+double frameindex = 0.0;
 double eachFrameLength = 0.0;
 vector<double> directionVector;
 
@@ -55,19 +55,15 @@ void updateAngles(double Ax, double Ay, double Az){
 
     double A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
 
-    angle_x = acos(Ax/A);
-    angle_y = acos(Ay/A);
-    angle_z = acos(Az/A);
+    angle_x = angle_x+acos(Ax/A)*10;
+    angle_y = angle_y+acos(Ay/A)*10;
+    angle_z = angle_z-acos(Az/A)*20;
 
     cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
 }
 
 void updateAngle(Points p, Points q) {
-   double dotProduct = p.x*q.x + p.y*q.y + p.z*q.z;
-   double modP =  sqrt(pow(p.x,2)+pow(p.y,2)+pow(p.z,2));
-   double modQ =  sqrt(pow(q.x,2)+pow(q.y,2)+pow(q.z,2));
 
-   rotAngle = acos(dotProduct/ (modP * modQ));
 
 }
 
@@ -97,6 +93,7 @@ void loadTrajectory(){
     y_position = points[0].y;
     z_position = points[0].z;
 
+    trajectory.cpi = 0;
 	trajectory.points = points;
 	trajectory.points.push_back(points[0]);
 
@@ -210,7 +207,7 @@ bool checkPrecision(double point_i, double point_f){
 
     bool result=false;
     double difference = (point_i-point_f);
-    return (difference<=0.09);
+    return (difference<=0.1);
 
 }
 
@@ -248,9 +245,9 @@ void timer(int) {
         eachFrameLength = distanceBetweenPoints/numberOfFrames;
 
         //directionVector = trajectory.directionVector(p1,p2);
-        x_direction = (p2.x-p1.x);
-        y_direction = (p2.y-p1.y);
-        z_direction = (p2.z-p1.z);
+        x_direction = (p2.x-p1.x)/distanceBetweenPoints;
+        y_direction = (p2.y-p1.y)/distanceBetweenPoints;
+        z_direction = (p2.z-p1.z)/distanceBetweenPoints;
 
         isInitial = false;
         newPath = false;
@@ -258,12 +255,12 @@ void timer(int) {
         cout<<"-----PATH START-----"<<endl;
     }
 
-    cout<<"Current Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
     // Direction is much needed (0,0,0)->(5,10,0)
 
     // Update the check condition
-    if (frameindex<= numberOfFrames && !(checkPrecision(p2.x,x_position) && checkPrecision(p2.y,y_position) && checkPrecision(p2.z,z_position)))
+    if((numberOfFrames-frameindex)>0 && !(checkPrecision(p2.x,x_position) && checkPrecision(p2.y,y_position) && checkPrecision(p2.z,z_position)))
     {
+        cout<<"Current Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
 
         double xRate = (x_direction*eachFrameLength*frameindex),
               yRate = (y_direction*eachFrameLength*frameindex),
@@ -284,11 +281,14 @@ void timer(int) {
         y_position = p2.y;
         z_position = p2.z;
 
-        trajectory.cpi++;
+        //
+        updateAngles(x_direction, y_direction, z_direction);
+
+        trajectory.cpi+=1;
         isInitial = false;
         newPath = true;
 
-        frameindex = 0.0001;
+        //frameindex = 0.0;
 
         cout<<"-----PATH END-----"<<endl;
 
