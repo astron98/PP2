@@ -53,10 +53,11 @@ void timer(int);
 // Under development
 void updateAngles(double Ax, double Ay, double Az){
 
+
     double A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
 
     angle_x = angle_x+acos(Ax/A)*10;
-    angle_y = angle_y+acos(Ay/A)*10;
+    angle_y = angle_y+acos(Ay/A)*5;
     angle_z = angle_z-acos(Az/A)*20;
 
     cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
@@ -77,7 +78,7 @@ void loadTrajectory(){
 
     vector<Points> points {
     //Points(0,0,-20),Points(15,1,-45),Points(25,3,-55),Points(2,5,-25),Points(1,3,-20),Points(-5,5,-30)
-    Points(-12,-13,-20),Points(-2,-13,-20),Points(6,-7,-20),Points(8,0,-20),Points(6,10,-35),Points(3,13,-35),Points(-3,8,-25),Points(-4,6,-24),Points(-7,2,-25),Points(-11,-10,-20)
+    Points(-10.7,-11.32,-20),Points(-2,-11.32,-20),Points(6,-7,-20),Points(8,0,-20),Points(6,10,-35),Points(3,13,-35),Points(-3,8,-25),Points(-4,6,-24),Points(-7,2,-25),Points(-10.5,-10,-20)
     //Points(-12,-13,-20),Points(-5,-13,-20),Points(5,-7,-20),Points(-4,-4,-20),Points(-6,-8,-20),Points(-10,-11,-20)
 
     };
@@ -127,15 +128,20 @@ int main(int argc, char** argv) {
 
 void display() {
 
+    GLfloat Pos[] = {0,3,0,1} ;
+    GLfloat Col[] = {1,0,0,1} ;
+
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //will reset the coordinate system.
     glLoadIdentity();
+    glLightfv(GL_LIGHT0,GL_POSITION,Pos);
+    glLightfv(GL_LIGHT0,GL_DIFFUSE,Col);
 
     //Translation is the shifting of the origin. - Translate first and then draw the object
     glTranslatef(x_position,y_position,z_position);
-    gluLookAt(0,1,3,0,0,0,0,1,0) ;
+    //gluLookAt(0,1,3,0,0,0,0,1,0) ;
 
     glRotatef(angle_x,1.0,0.0,0.0);
     glRotatef(angle_y,0.0,1.0,0.0);
@@ -143,11 +149,10 @@ void display() {
 
     glShadeModel(GL_SMOOTH);
 
-
     glPushMatrix();
         glScalef(.5,1,.5);
-        glColor3f(0.0,0.0,0.0);
-        glutWireCube(1);
+        glColor3f(0.0,0.0,1.0);
+        glutSolidCube(1);
     glPopMatrix();
 
     glPushMatrix();
@@ -159,15 +164,18 @@ void display() {
         glVertex3f(0.0,1.0,0.0);
         glVertex3f(-0.25,0.5,0.25);
         glVertex3f(0.25,0.5,0.25);
-                  // Begin drawing the pyramid with 4 triangles
+
+        glColor3f(0.0,0.0,1.0);// Begin drawing the pyramid with 4 triangles
         glVertex3f(0.0,1.0,0.0);
         glVertex3f(0.25,0.5,0.25);
         glVertex3f(0.25,0.5,-0.25);
 
+        glColor3f(0.0,1.0,1.0);
         glVertex3f(0.0,1.0,0.0);
         glVertex3f(0.25,0.5,-0.25);
         glVertex3f(-0.25,0.5,-0.25);
 
+        glColor3f(0.0,0.0,1.0);
         glVertex3f(0.0,1.0,0.0);
         glVertex3f(-0.25,0.5,-0.25);
         glVertex3f(-0.25,0.5,0.25);
@@ -201,6 +209,8 @@ void reshape(int w, int h) {
     gluPerspective(60,1,1.0,500.0);
 
     glMatrixMode(GL_MODELVIEW);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
 }
 
 bool checkPrecision(double point_i, double point_f){
@@ -230,6 +240,10 @@ void timer(int) {
     // Logic A->B->A
     if(isInitial || newPath){
         if(trajectory.cpi==N) {
+
+            angle_x = 60.0;
+            angle_y = 0.0;
+            angle_z = -90.0;
             //stop when the plane complete one cycle on the trajectory.
             return;
         }
@@ -258,8 +272,10 @@ void timer(int) {
     // Direction is much needed (0,0,0)->(5,10,0)
 
     // Update the check condition
-    if((numberOfFrames-frameindex)>0 && !(checkPrecision(p2.x,x_position) && checkPrecision(p2.y,y_position) && checkPrecision(p2.z,z_position)))
+    if((frameindex<=numberOfFrames) && !(checkPrecision(p2.x,x_position) && checkPrecision(p2.y,y_position) && checkPrecision(p2.z,z_position)))
     {
+
+        cout<<"\n Difference: x-axis: "<<p2.x-x_position<<" y-axis: "<<p2.y-y_position<<" z-axis: "<<p2.z-z_position<<"\n"<<endl;
         cout<<"Current Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
 
         double xRate = (x_direction*eachFrameLength*frameindex),
@@ -270,7 +286,7 @@ void timer(int) {
         y_position = y_position + yRate;
         z_position = z_position + zRate;
 
-        frameindex = frameindex + 0.0001;
+        frameindex = frameindex + 0.0004;
 
         cout<<"Next Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
 
