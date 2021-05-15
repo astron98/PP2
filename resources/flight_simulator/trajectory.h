@@ -39,24 +39,6 @@ public:
         this->numberOfPoints = this->points.size();
 
     }
-
-    vector<float> directionVector(Points a_point, Points b_point) {
-        float a = (b_point.y - a_point.y)*(b_point.z-a_point.z);
-        float b = (a_point.x - b_point.x)*(b_point.z-a_point.z);
-        float c=  (a_point.x- b_point.x)*(b_point.y-a_point.y);
-        float d = a*a_point.x + b*a_point.y+c*a_point.z;
-        float da= -d/a;
-        float db= -d/b;
-        float dc= -d/c;
-
-        vector<float> direction;
-        direction.push_back(da);
-        direction.push_back(db);
-        direction.push_back(dc);
-        return direction;
-
-    }
-
 };
 
 

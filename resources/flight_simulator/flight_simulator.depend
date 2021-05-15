@@ -96,3 +96,16 @@
 	<bits/stdc++.h>
 	<cmath>
 
+1621092298 source:c:\users\91918\desktop\pp2\pp2\resources\flight_simulator\main.cpp
+	<GL/glut.h>
+	<GL/glu.h>
+	<GL/gl.h>
+	<bits/stdc++.h>
+	<iostream>
+	"trajectory.h"
+	<cmath>
+
+1621091614 c:\users\91918\desktop\pp2\pp2\resources\flight_simulator\trajectory.h
+	<bits/stdc++.h>
+	<cmath>
+
