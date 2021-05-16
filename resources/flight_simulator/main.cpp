@@ -118,10 +118,35 @@ void init(){
     glClearColor(0.7,0.7,0.7,1.0);
     glEnable(GL_DEPTH_TEST);
 }
+void dis(){
+    glClearColor(0,0,0,0);
+    glFlush();
+}
+
+void StartMenu(int n){
+    switch(n)
+    {
+    case 1 :
+    loadTrajectory();
+
+
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowPosition(200,100);
+    glutInitWindowSize(1920,1200);
+
+    glutCreateWindow("Flight");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutTimerFunc(0, timer, 0);
+    init();
+    break;
+
+    case 2 : break;
+    }
+    glutPostRedisplay();
+}
 
 int main(int argc, char** argv) {
-
-    loadTrajectory();
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -130,14 +155,18 @@ int main(int argc, char** argv) {
 
     glutCreateWindow("Flight");
 
-    //callback functions
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutTimerFunc(0, timer, 0);
-    init();
 
+
+    glutCreateMenu(StartMenu);
+    glutAddMenuEntry("Start",1);
+    glutAddMenuEntry("Exit",0);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+
+    glutDisplayFunc(dis);
+    //callback functions
     glutMainLoop();
 }
+
 
 void display() {
 
