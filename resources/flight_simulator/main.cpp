@@ -1,4 +1,6 @@
 #include<windows.h>
+
+
 #include<GL/glut.h>
 #include<GL/glu.h>
 #include<GL/gl.h>
@@ -39,7 +41,8 @@ double x_position = 0.0, y_position = 0.0, z_position = -20.0;
 double angle_x = 60.0, angle_y = 0.0, angle_z = -90.0,rotAngle = 90.0;
 double x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
-
+int win_id;
+void StartMenu(int);
 void display();
 void reshape(int, int);
 void timer(int);
@@ -118,54 +121,53 @@ void init(){
     glClearColor(0.7,0.7,0.7,1.0);
     glEnable(GL_DEPTH_TEST);
 }
-void dis(){
-    glClearColor(0,0,0,0);
-    glFlush();
-}
-
-void StartMenu(int n){
-    switch(n)
-    {
-    case 1 :
-    loadTrajectory();
-
-
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowPosition(200,100);
-    glutInitWindowSize(1920,1200);
-
-    glutCreateWindow("Flight");
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutTimerFunc(0, timer, 0);
-    init();
-    break;
-
-    case 2 : break;
-    }
-    glutPostRedisplay();
-}
 
 int main(int argc, char** argv) {
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(200,100);
-    glutInitWindowSize(1920,1200);
-
-    glutCreateWindow("Flight");
+    glutInitWindowSize(800,500);
+    win_id = glutCreateWindow("Flight");
 
 
 
     glutCreateMenu(StartMenu);
     glutAddMenuEntry("Start",1);
-    glutAddMenuEntry("Exit",0);
+    glutAddMenuEntry("Exit",2);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-    glutDisplayFunc(dis);
-    //callback functions
+    glutDisplayFunc(display);
     glutMainLoop();
+    //callback functions
+
 }
+
+void StartMenu(int n){
+    switch(n)
+    {
+    case 1 :
+    glutDestroyWindow(glutGetWindow());
+    glLoadIdentity();
+    loadTrajectory();
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitWindowPosition(1000,10);
+    glutInitWindowSize(1920,1080);
+    glutCreateWindow("Flight");
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutTimerFunc(0, timer, 0);
+    init();
+
+    break;
+
+    case 2 :
+    glutDestroyWindow(glutGetWindow());
+    break;
+    }
+    glutPostRedisplay();
+}
+
 
 
 void display() {
