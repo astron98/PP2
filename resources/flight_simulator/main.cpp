@@ -244,17 +244,6 @@ void displayAnimationWindow() {
         glEnd();
     glPopMatrix();
 
-
-    // Path Lines
-    glLoadIdentity();
-    glColor3f(1.0,0.0,0.0);
-    glBegin(GL_LINE_STRIP);
-        for(Points &p:trajectory.points){
-            glVertex3f(p.x, p.y, p.z);
-        }
-    glEnd();
-
-
     //will display the framebuffer on screen
     glutSwapBuffers();
 }
@@ -342,7 +331,7 @@ void timer(int) {
         y_position = y_position + yRate;
         z_position = z_position + zRate;
 
-        frameindex = frameindex + 0.0001;
+        frameindex = frameindex + 0.0005;
 
         cout<<"Next Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
 
