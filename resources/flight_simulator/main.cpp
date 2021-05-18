@@ -98,23 +98,47 @@ void init(){
 }
 
 int main(int argc, char** argv) {
-
-    loadTrajectory();
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowPosition(200,100);
-    glutInitWindowSize(1920,1200);
+    glutInitWindowPosition(0,0);
+    glutInitWindowSize(800,500);
+    win_id = glutCreateWindow("Flight");
 
-    glutCreateWindow("Flight");
 
-    //callback functions
+
+    glutCreateMenu(StartMenu);
+    glutAddMenuEntry("Start",1);
+    glutAddMenuEntry("Exit",2);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
+
     glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutTimerFunc(0, timer, 0);
-    init();
-
     glutMainLoop();
+
+}
+
+void StartMenu(int n){
+    switch(n)
+    {
+    case 1 :
+    	glutDestroyWindow(glutGetWindow());
+    	glLoadIdentity();
+    	loadTrajectory();
+    	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+    	glutInitWindowPosition(0,0);
+    	glutInitWindowSize(1920,1080);
+    	glutCreateWindow("Flight");
+    	glutDisplayFunc(display);
+    	glutReshapeFunc(reshape);
+    	glutTimerFunc(0, timer, 0);
+    	init();
+
+    break;
+
+    case 2 :
+    	glutDestroyWindow(glutGetWindow());
+    break;
+    }
+    glutPostRedisplay();
 }
 
 void display() {
