@@ -1,11 +1,10 @@
-#include<windows.h>
-
-
 #include<GL/glut.h>
 #include<GL/glu.h>
 #include<GL/gl.h>
 #include<bits/stdc++.h>
+#include<fstream>
 #include<iostream>
+#include<stdlib.h>
 #include "trajectory.h"
 #include<cmath>
 #define PI 3.14159265358979323846
@@ -38,25 +37,31 @@ vector<double> directionVector;
 
 //initial position of x
 double x_position = 0.0, y_position = 0.0, z_position = -20.0;
-double angle_x = 60.0, angle_y = 0.0, angle_z = -90.0,rotAngle = 90.0;
+double angle_x = -60.0, angle_y = 180.0, angle_z = -90.0;
 double x_direction = 0, y_direction = 0, z_direction = 0;
 int N = 0;
 int win_id;
+
 void StartMenu(int);
-void display();
+void displayAnimationWindow();
 void reshape(int, int);
 void timer(int);
 
 
 // Under development
+void updateAngle();
 void updateAngles(double Ax, double Ay, double Az){
 
 
     double A = sqrt(pow(Ax,2)+pow(Ay,2)+pow(Az,2));
 
-    angle_x = angle_x+acos(Ax/A)*10;
-    angle_y = angle_y+acos(Ay/A)*5;
-    angle_z = angle_z-acos(Az/A)*20;
+    double currentAngleX = acos(Ax/A)*(180/PI);
+    double currentAngleY = acos(Ay/A)*(180/PI);
+    double currentAngleZ = acos(Az/A)*(180/PI);
+
+    angle_x = currentAngleX;
+    angle_y = currentAngleY;
+    angle_z = currentAngleZ;
 
     // cout<<"The angles are :"<<angle_x<<" "<<angle_y<<" "<<angle_z<<endl;
 }
@@ -121,56 +126,76 @@ void init(){
     glClearColor(0.7,0.7,0.7,1.0);
     glEnable(GL_DEPTH_TEST);
 }
+void displayEmptyScreen(){
+    glClearColor(0.7,0.7,0.7,1.0);
+    glFlush();
+}
+
+void StartMenu(int n){
+    switch(n)
+    {
+        case 1:
+            glutDestroyWindow(glutGetWindow());
+
+            glLoadIdentity();
+            loadTrajectory();
+
+            glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+            glutInitWindowPosition(0,0);
+            glutInitWindowSize(1920,1080);
+
+            win_id = glutCreateWindow("Flight");
+            glutSetWindow(win_id);
+            glutFullScreen();
+
+            glutDisplayFunc(displayAnimationWindow);
+            glutReshapeFunc(reshape);
+            glutTimerFunc(0, timer, 0);
+            init();
+        break;
+
+        case 2:
+            glutDestroyWindow(glutGetWindow());
+            break;
+    }
+
+    glutPostRedisplay();
+}
+
+void renderBitMap(double x, double y, double z, void *font, char *title){
+    glRasterPos3f(x,y,z);
+    for(char *c=title; *c!='\0';c++){
+        glColor3f(0,0,0);
+        glutBitmapCharacter(font, *c);
+    }
+}
 
 int main(int argc, char** argv) {
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowPosition(200,100);
-    glutInitWindowSize(800,500);
-    win_id = glutCreateWindow("Flight");
+    glutInitWindowPosition(0,0);
+    glutInitWindowSize(500,500);
 
+    win_id = glutCreateWindow("Menu");
 
+    // Text
+    char textBuffer[100] = {0};
+    sprintf_s(textBuffer,"Amrita");
+    renderBitMap(100,100,-20,GLUT_BITMAP_HELVETICA_18,textBuffer);
 
     glutCreateMenu(StartMenu);
     glutAddMenuEntry("Start",1);
     glutAddMenuEntry("Exit",2);
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-    glutDisplayFunc(display);
-    glutMainLoop();
+    glutDisplayFunc(displayEmptyScreen);
     //callback functions
-
+    glutMainLoop();
 }
 
-void StartMenu(int n){
-    switch(n)
-    {
-    case 1 :
-    glutDestroyWindow(glutGetWindow());
-    glLoadIdentity();
-    loadTrajectory();
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutInitWindowPosition(1000,10);
-    glutInitWindowSize(1920,1080);
-    glutCreateWindow("Flight");
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutTimerFunc(0, timer, 0);
-    init();
+void displayAnimationWindow() {
 
-    break;
-
-    case 2 :
-    glutDestroyWindow(glutGetWindow());
-    break;
-    }
-    glutPostRedisplay();
-}
-
-
-
-void display() {
 
     GLfloat Pos[] = {0,3,0,1} ;
     GLfloat Col[] = {1,0,0,1} ;
@@ -187,9 +212,9 @@ void display() {
     glTranslatef(x_position,y_position,z_position);
     //gluLookAt(0,1,3,0,0,0,0,1,0) ;
 
-    glRotatef(angle_x,1.0,0.0,0.0);
-    glRotatef(angle_y,0.0,1.0,0.0);
-    glRotatef(angle_z,0.0,0.0,1.0);
+    glRotatef(angle_x,p2.x,0.0,0.0);
+    glRotatef(angle_y,0.0,p2.y,0.0);
+    glRotatef(angle_z,0.0,0.0,p2.z);
 
     glShadeModel(GL_SMOOTH);
 
@@ -224,6 +249,15 @@ void display() {
         glVertex3f(-0.25,0.5,-0.25);
         glVertex3f(-0.25,0.5,0.25);
         glEnd();
+
+        // Wing - Left
+        glBegin(GL_LINE_STRIP);
+        glEnd();
+
+        // Wing - Right
+        glBegin(GL_LINE_STRIP);
+        glEnd();
+
     glPopMatrix();
 
 
@@ -277,10 +311,12 @@ void timer(int) {
     if(isInitial || newPath){
         if(trajectory.cpi==N) {
 
-            angle_x = 60.0;
-            angle_y = 0.0;
+            angle_x = -60.0;
+            angle_y = 180.0;
             angle_z = -90.0;
             //stop when the plane complete one cycle on the trajectory.
+
+            glutReshapeWindow(1920,1080);
             return;
         }
 
@@ -298,6 +334,8 @@ void timer(int) {
         x_direction = (p2.x-p1.x)/distanceBetweenPoints;
         y_direction = (p2.y-p1.y)/distanceBetweenPoints;
         z_direction = (p2.z-p1.z)/distanceBetweenPoints;
+
+        // Update angle
 
         isInitial = false;
         newPath = false;
@@ -322,7 +360,7 @@ void timer(int) {
         y_position = y_position + yRate;
         z_position = z_position + zRate;
 
-        frameindex = frameindex + 0.0001;
+        frameindex = frameindex + 0.0005;
 
         cout<<"Next Position: ("<<x_position<<", "<<y_position<<", "<<z_position<<")"<<endl;
 
@@ -333,8 +371,10 @@ void timer(int) {
         y_position = p2.y;
         z_position = p2.z;
 
-        //
-        updateAngles(x_direction, y_direction, z_direction);
+        // Update angles
+        //updateAngles(x_direction, y_direction, z_direction);
+        //angleBetweenVectors(p1,p2);
+        updateAngle();
 
         trajectory.cpi+=1;
         isInitial = false;
@@ -343,5 +383,32 @@ void timer(int) {
         cout<<"-----PATH END-----"<<endl;
 
     }
+}
 
+void updateAngle(){
+    if(trajectory.cpi == 0){
+        angle_x = -50;
+        angle_y = 190;
+        angle_z = -45;
+    }else if(trajectory.cpi == 1){
+        angle_x = -50;
+        angle_y = 130;
+        angle_z = -30;
+    }else if(trajectory.cpi == 2){
+        angle_x = -50;
+        angle_y = 130;
+        angle_z = -30;
+    }else if(trajectory.cpi > 2 && trajectory.cpi <= N-6){
+        angle_x += -5;
+        angle_y = -180;
+        angle_z = 90;
+    }else if(trajectory.cpi == N-5 || trajectory.cpi == N-4){
+        angle_x = 40;
+        angle_y = 70;
+        angle_z = 200;
+    }else{
+        angle_x = 40;
+        angle_y = 30;
+        angle_z = 180;
+    }
 }
