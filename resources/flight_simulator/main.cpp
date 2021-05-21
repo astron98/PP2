@@ -216,6 +216,41 @@ void displayAnimationWindow() {
         glColor3f(0.0,0.0,1.0);
         glutSolidCube(1);
     glPopMatrix();
+	glPopMatrix();
+
+    glPushMatrix();
+    glTranslatef(0,0,0);
+    glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,1.0);
+    glVertex3f(0.25,0.4,0.0);
+    glVertex3f(0.712,-0.3,0.0);
+    glVertex3f(0.712,-0.4,0.0);
+    glVertex3f(0.25,-0.4,0.0);
+    glEnd();
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0,0,0);
+    glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,1.0);
+    glVertex3f(-0.25,0.4,0.0);
+    glVertex3f(-0.712,-0.3,0.0);
+    glVertex3f(-0.712,-0.4,0.0);
+    glVertex3f(-0.25,-0.4,0.0);
+    glEnd();
+
+    glPopMatrix();
+    glPushMatrix();
+    glTranslatef(0,0,0);
+    glBegin(GL_POLYGON);
+    glColor3f(1.0,12.0,1.0);
+    glVertex3f(0.0,-0.05,0.0);
+    glVertex3f(0.0,-0.381,-0.65);
+    glVertex3f(0.0,-0.5,-0.65);
+    glVertex3f(0.0,-0.45,0.0);
+    glEnd();
+
+    glPopMatrix();
 
     glPushMatrix();
 
